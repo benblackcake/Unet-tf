@@ -2,6 +2,9 @@ import numpy as np
 import tensorflow as tf
 import h5py
 import cv2
+import datetime
+import os
+import shutil
 
 
 def build_log_dir(args, arguments):
@@ -19,9 +22,10 @@ def build_log_dir(args, arguments):
         f.write(
             'iteration, ROC\n')
     # Copy this code to folder
-    shutil.copy2('srresnet.py', os.path.join(log_path, 'srresnet.py'))
+    shutil.copy2('model.py', os.path.join(log_path, 'srresnet.py'))
     shutil.copy2('main.py', os.path.join(log_path, 'main.py'))
     shutil.copy2('utils.py', os.path.join(log_path, 'utils.py'))
+    shutil.copy2('Benchmarks.py', os.path.join(log_path, 'Benchmarkss.py'))
     # Write command line arguments to file
     with open(log_path + '/args.txt', 'w+') as f:
         f.write(' '.join(arguments))
@@ -49,6 +53,23 @@ def batch_bgr2gray(batch):
 
     return batch_result
 
+def modcrop(img, scale =2):
+    """
+    To scale down and up the original image, first thing to do is to have no remainder while scaling operation.
+    """
+    # Check the image is gray
+
+    if len(img.shape) ==3:
+        h, w, _ = img.shape
+        h = h - np.mod(h, scale)
+        w = w - np.mod(w, scale)
+        img = img[0:h, 0:w, :]
+    else:
+        h, w = img.shape
+        h = h - np.mod(h, scale)
+        w = w - np.mod(w, scale)
+        img = img[0:h, 0:w]
+    return img
 
 
 
