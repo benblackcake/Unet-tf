@@ -66,6 +66,9 @@ def main():
 
         saver = tf.train.Saver(max_to_keep=100)
 
+        iteration = 0
+        n_iteration_per_epoch = len(train_data) // args.batch_size
+        
         # Load all
         if args.load:
             iteration = int(args.load.split('-')[-1])
@@ -73,8 +76,6 @@ def main():
             print(saver)
             print("load_process_DEBUG")
 
-        iteration = 0
-        n_iteration_per_epoch = len(train_data) // args.batch_size
 
         while True:
 
