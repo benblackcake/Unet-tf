@@ -28,7 +28,7 @@ def main():
     '''
     PlaceHolder feed data
     '''
-    x_train = tf.placeholder(tf.float32, shape=[None, None, None], name='x_train')
+    x_train = tf.placeholder(tf.float32, shape=[None, None, None, 1], name='x_train')
     y_true = tf.placeholder(tf.float32, shape=[None, None, None], name='y_true')
 
     print('__DEBUG__NAME', x_train)

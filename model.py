@@ -69,7 +69,7 @@ class Unet(object):
 
         # train is used for un_conv, to determine the batch size
 
-        conv1 = self._conv_layer(x_train, 3, 3, 64)
+        conv1 = self._conv_layer(x_train, 1, 3, 64)
         conv2 = self._conv_layer(conv1, 64, 3, 64)
         pool2 = self._pool_layer(conv2)
         conv3 = self._conv_layer(pool2, 64, 3, 128)
