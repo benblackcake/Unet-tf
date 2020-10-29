@@ -31,8 +31,8 @@ class Benchmarks():
         out = []
         for image in images:
             img = cv2.imread(image, 0)
-            # out.append(modcrop(img, scale=4))
-            out.append(img)
+            out.append(modcrop(img, scale=4))
+            # out.append(img)
 
         return out
 
