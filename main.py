@@ -92,7 +92,7 @@ def main():
 
 
                 batch_train = train_data[batch_idx:batch_idx + args.batch_size]
-                batch_train = batch_bgr2gray(batch_train)
+                batch_train = batch_bgr2gray(np.expand_dims(batch_train, axis=-1))
                 batch_train = np.multiply(batch_train, 1.0 / 255.0)
 
                 batch_label = train_label[batch_idx:batch_idx + args.batch_size]
