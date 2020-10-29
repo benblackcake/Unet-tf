@@ -46,6 +46,8 @@ if __name__ == '__main__':
             Benchmarks('./Benchmarks/retina_test/', name='retina image')
         ]
         # Load all
+        saver = tf.train.Saver()
+
         if args.load:
             iteration = int(args.load.split('-')[-1])
             saver.restore(sess, args.load)
