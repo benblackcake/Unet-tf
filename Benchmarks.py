@@ -30,8 +30,9 @@ class Benchmarks():
         """Given a list of file names, return a list of images"""
         out = []
         for image in images:
-            img = cv2.cvtColor(cv2.imread(image), cv2.COLOR_BGR2RGB).astype(np.uint8)
-            out.append(modcrop(img, scale=4))
+            img = cv2.imread(image, 0)
+            # out.append(modcrop(img, scale=4))
+            out.append(img)
 
         return out
 
@@ -57,6 +58,8 @@ class Benchmarks():
 
             cv2.imshow('__DEBUG__image', segment_img)
             cv2.waitKey(0)
+            
+            segment_img = np.expand_dims(segment_img, axis=-1)
             print('__DEBUG__SHAPE', segment_img[np.newaxis].shape)
 
 
