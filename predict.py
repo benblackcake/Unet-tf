@@ -42,13 +42,15 @@ if __name__ == '__main__':
         sess.run(tf.local_variables_initializer())
         sess.run(tf.global_variables_initializer())
 
-        saver = tf.train.Saver()
-        saver.restore(sess, args.load)
-
         benchmarks = [
             Benchmarks('./Benchmarks/retina_test/', name='retina image')
         ]
-
+        # Load all
+        if args.load:
+            iteration = int(args.load.split('-')[-1])
+            saver.restore(sess, args.load)
+            print(saver)
+            print("load_process_DEBUG")
 
         for benchmark in benchmarks:
             benchmark.evaluate(sess, y_pred, log_path, iteration)
