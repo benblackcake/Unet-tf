@@ -49,7 +49,7 @@ class Benchmarks():
             path = os.path.join(log_path, self.name, name, '%d_out.png' % iteration)
             self.save_image(output, path)
 
-    def evaluate(self, sess, y_pred, log_path, iteration=0):
+    def evaluate(self, sess, y_pred, x_train, log_path, iteration=0):
 
         pred = []
 
@@ -60,7 +60,7 @@ class Benchmarks():
             print('__DEBUG__SHAPE', segment_img[np.newaxis].shape)
 
 
-            pred_segment = sess.run(y_pred, feed_dict={'x_train:0':segment_img[np.newaxis]/255.})
+            pred_segment = sess.run(y_pred, feed_dict={x_train:segment_img[np.newaxis]/255.})
 
         #     segment_result = np.squeeze(pred_segemet, axis=0)
         #     segment_result *= 255

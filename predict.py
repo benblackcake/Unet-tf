@@ -55,7 +55,7 @@ if __name__ == '__main__':
             print("load_process_DEBUG")
 
         for benchmark in benchmarks:
-            benchmark.evaluate(sess, y_pred, log_path, iteration)
+            benchmark.evaluate(sess, y_pred, x_train, log_path, iteration)
 
 
 
