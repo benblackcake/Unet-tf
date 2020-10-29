@@ -30,6 +30,12 @@ if __name__ == '__main__':
     unet = Unet(batch_size=args.batch_size, classes=args.classes,img_size=args.image_size)
     y_pred = unet.create_unet(x_train, train=False)
 
+    # Create log folder
+    if args.load and not args.name:
+        log_path = os.path.dirname(args.load)
+    else:
+        log_path = build_log_dir(args, sys.argv)
+
 
     with tf.Session() as sess:
         sess.run(tf.local_variables_initializer())
