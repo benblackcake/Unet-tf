@@ -26,9 +26,9 @@ if __name__ == '__main__':
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
 
-    x = tf.placeholder(tf.float32, shape=[None, None, None, num_channels], name='x')
+    x_train = tf.placeholder(tf.float32, shape=[None, None, None, 3], name='x_train')
     unet = Unet(batch_size=args.batch_size, classes=args.classes,img_size=args.image_size)
-    y_pred = unet.create_unet(x, train=False)
+    y_pred = unet.create_unet(x_train, train=False)
 
 
     with tf.Session() as sess:
