@@ -38,7 +38,7 @@ def main():
 
     y_loss = unet.loss_function(y_true, y_pred)
 
-    # y_pred = tf.argmax(y_pred, axis = 3, name="y_pred")
+    y_pred = tf.argmax(y_pred, axis = 3, name="y_pred")
 
     optimizer = unet.optimize(y_loss)
 
@@ -68,7 +68,7 @@ def main():
 
         iteration = 0
         n_iteration_per_epoch = len(train_data) // args.batch_size
-        
+
         # Load all
         if args.load:
             iteration = int(args.load.split('-')[-1])
