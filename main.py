@@ -29,7 +29,7 @@ def main():
     PlaceHolder feed data
     '''
     x_train = tf.placeholder(tf.float32, shape=[None, None, None, 1], name='x_train')
-    y_true = tf.placeholder(tf.float32, shape=[None, None, None], name='y_true')
+    y_true = tf.placeholder(tf.float32, shape=[None, None, None, 1], name='y_true')
 
     print('__DEBUG__NAME', x_train)
 
@@ -98,6 +98,7 @@ def main():
 
                 batch_label = train_label[batch_idx:batch_idx + args.batch_size]
                 batch_label = batch_bgr2gray(batch_label)
+                batch_label = np.expand_dims(batch_label, axis=-1)
                 batch_label = np.multiply(batch_label, 1.0 / 255.0)
                 # print('__DEBUG__', batch_label.shape)
 
