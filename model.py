@@ -38,7 +38,7 @@ class Unet(object):
               padding=padding)
 
     def _un_conv(self, input, num_input_channels, conv_filter_size,\
-                num_filters, feature_map_size_w, feature_map_size_h, train=True,\
+                num_filters, feature_map_size, train=True,\
                 padding='SAME',relu=True):
 
 
@@ -51,7 +51,7 @@ class Unet(object):
             batch_size_0 = 1
 
         layer = tf.nn.conv2d_transpose(value=input, filter=weights,\
-                           output_shape=[batch_size_0, feature_map_size_w, feature_map_size_h, num_filters],\
+                           output_shape=[batch_size_0, feature_map_size, feature_map_size, num_filters],\
                            strides=[1, 2, 2, 1],\
                            padding=padding)
         layer += biases
@@ -69,10 +69,6 @@ class Unet(object):
 
         # train is used for un_conv, to determine the batch size
 
-        # x_train_h = x_train.shape[1]
-        # x_train_w = x_train.shape[2]
-        # feature_map_size = [x_train.shape[1],x_train.shape[2]]
-
         conv1 = self._conv_layer(x_train, 1, 3, 64)
         conv2 = self._conv_layer(conv1, 64, 3, 64)
         pool2 = self._pool_layer(conv2)
@@ -89,25 +85,35 @@ class Unet(object):
         conv9 = self._conv_layer(pool8, 512, 3, 1024)
         conv10 = self._conv_layer(conv9, 1024, 3, 1024)
 
-        conv11 = self._un_conv(conv10, 1024, 2, 512, x_train.shape[1] // 8, x_train.shape[1] // 8, train)
+        # conv11 = self._un_conv(conv10, 1024, 2, 512, self.img_size // 8, train)
+
+        conv11 = tf.layers.conv2d_transpose(inputs=conv10, filters=512, kernel_size=2, strides=2,
+                                 padding="same", kernel_initializer=tf.initializers.glorot_uniform())
+
         merge11 = tf.concat(values=[conv8, conv11], axis = -1)
 
         conv12 = self._conv_layer(merge11, 1024, 3, 512)
         conv13 = self._conv_layer(conv12, 512, 3, 512)
 
-        conv14 = self._un_conv(conv13, 512, 2, 256, x_train.shape[1] // 4, x_train.shape[1] // 4, train)
+        # conv14 = self._un_conv(conv13, 512, 2, 256, self.img_size // 4, train)
+        conv14 = tf.layers.conv2d_transpose(inputs=conv13, filters=256, kernel_size=2, strides=2,
+                                 padding="same", kernel_initializer=tf.initializers.glorot_uniform())
         merge14 = tf.concat([conv6, conv14], axis=-1)
 
         conv15 = self._conv_layer(merge14, 512, 3, 256)
         conv16 = self._conv_layer(conv15, 256, 3, 256)
 
-        conv17 = self._un_conv(conv16, 256, 2, 128, x_train.shape[1] // 2, x_train.shape[1] //2, train)
+        # conv17 = self._un_conv(conv16, 256, 2, 128, self.img_size // 2, train)
+        conv17 = tf.layers.conv2d_transpose(inputs=conv16, filters=128, kernel_size=2, strides=2,
+                                 padding="same", kernel_initializer=tf.initializers.glorot_uniform())
         merge17 = tf.concat([conv17, conv4], axis=-1)
 
         conv18 = self._conv_layer(merge17, 256, 3, 128)
         conv19 = self._conv_layer(conv18, 128, 3, 128)
 
-        conv20 = self._un_conv(conv19, 128, 2, 64, self.img_size, train)
+        # conv20 = self._un_conv(conv19, 128, 2, 64, self.img_size, train)
+        conv20 = tf.layers.conv2d_transpose(inputs=conv19, filters=64, kernel_size=2, strides=2,
+                                 padding="same", kernel_initializer=tf.initializers.glorot_uniform())
         merge20 = tf.concat([conv20, conv2], axis=-1)
 
         conv21 = self._conv_layer(merge20, 128, 3, 64)
