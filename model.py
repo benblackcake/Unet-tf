@@ -85,25 +85,25 @@ class Unet(object):
         conv9 = self._conv_layer(pool8, 512, 3, 1024)
         conv10 = self._conv_layer(conv9, 1024, 3, 1024)
 
-        conv11 = self._un_conv(conv10, 1024, 2, 512, self.img_size // 8, train)
+        conv11 = self._un_conv(conv10, 1024, 2, 512, 64 // 8, train)
         merge11 = tf.concat(values=[conv8, conv11], axis = -1)
 
         conv12 = self._conv_layer(merge11, 1024, 3, 512)
         conv13 = self._conv_layer(conv12, 512, 3, 512)
 
-        conv14 = self._un_conv(conv13, 512, 2, 256, self.img_size // 4, train)
+        conv14 = self._un_conv(conv13, 512, 2, 256, 64// 4, train)
         merge14 = tf.concat([conv6, conv14], axis=-1)
 
         conv15 = self._conv_layer(merge14, 512, 3, 256)
         conv16 = self._conv_layer(conv15, 256, 3, 256)
 
-        conv17 = self._un_conv(conv16, 256, 2, 128, self.img_size // 2, train)
+        conv17 = self._un_conv(conv16, 256, 2, 128, 64 // 2, train)
         merge17 = tf.concat([conv17, conv4], axis=-1)
 
         conv18 = self._conv_layer(merge17, 256, 3, 128)
         conv19 = self._conv_layer(conv18, 128, 3, 128)
 
-        conv20 = self._un_conv(conv19, 128, 2, 64, self.img_size, train)
+        conv20 = self._un_conv(conv19, 128, 2, 64, 64, train)
         merge20 = tf.concat([conv20, conv2], axis=-1)
 
         conv21 = self._conv_layer(merge20, 128, 3, 64)
