@@ -48,10 +48,16 @@ def batch_bgr2rgb(batch):
 def batch_bgr2gray(batch):
 
     batch_result = np.zeros([batch.shape[0],batch.shape[1],batch.shape[2]])
+    
     for i in range(batch.shape[0]):
-        batch_result[i,:,:] = cv2.cvtColor(batch[i,:,:,:], cv2.COLOR_BGR2GRAY)
+        tmp_img = cv2.cvtColor(batch[i,:,:,:], cv2.COLOR_BGR2GRAY)
+        batch_result[i,:,:] = tmp_img
+    '''DEBUGING'''
 
-    return batch_result
+    # for i in range(batch_result.shape[0]):
+    #     cv2.imshow('__DEBUG__', batch_result[i,:,:])
+    #     cv2.waitKey(0)
+    return batch_result.astype('uint8')
 
 def modcrop(img, scale =2):
     """
