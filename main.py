@@ -4,10 +4,11 @@ import numpy as np
 from model import Unet
 import argparse
 import os
-from utils import get_data_set, batch_bgr2gray, build_log_dir
+from utils import get_data_set, batch_bgr2gray, build_log_dir, batch_bgr2rgb
 from tqdm import tqdm,trange
 from Benchmarks import Benchmarks
 import sys
+import cv2
 
 def main():
     '''
@@ -20,6 +21,8 @@ def main():
     parser.add_argument('--image-size', type=int, default=48, help='Size of random crops used for training samples.')
     parser.add_argument('--classes', type=int, default=1, help='classes number')
     parser.add_argument('--gpu', type=str, default='0', help='Which GPU to use')
+    parser.add_argument('--iteration', type=int, default=1000, help='save weights iterations.')
+    parser.add_argument('--test-filename', type=str, default='test', help='The test filenames from Benchmarks.')
 
 
     args = parser.parse_args()
@@ -28,7 +31,7 @@ def main():
     '''
     PlaceHolder feed data
     '''
-    x_train = tf.placeholder(tf.float32, shape=[None, None, None, 1], name='x_train')
+    x_train = tf.placeholder(tf.float32, shape=[None, None, None, 3], name='x_train')
     y_true = tf.placeholder(tf.float32, shape=[None, None, None, 1], name='y_true')
 
     print('__DEBUG__NAME', x_train)
@@ -38,12 +41,12 @@ def main():
 
     y_loss = unet.loss_function(y_true, y_pred)
 
-    y_pred = tf.argmax(y_pred, axis = 3, name="y_pred")
+    # y_pred = tf.argmax(y_pred, axis = 3, name="y_pred")
 
     optimizer = unet.optimize(y_loss)
 
 
-    train_path = './dataset/PreprocessedData.h5'
+    train_path = './dataset/retina120_256.h5'
     # train_label = './dataset/..'
 
     train_data = get_data_set(train_path, 'train')
@@ -85,19 +88,27 @@ def main():
 
             for batch_idx in t:
 
-                #     # y_pred = unet.create_unet(x_train, train=False)
+                # y_pred = unet.create_unet(x_train, train=False)
+                if iteration%args.iteration == 0:
+                    for benchmark in benchmarks:
+                        benchmark.evaluate(sess, y_pred ,log_path, iteration)
 
-                #     for benchmark in benchmarks:
-                #         benchmark.evaluate(sess, y_pred, log_path, iteration)
-
+                    saver.save(sess, os.path.join(log_path, 'weights'), global_step=iteration, write_meta_graph=True)
 
                 batch_train = train_data[batch_idx:batch_idx + args.batch_size]
-                batch_train = batch_bgr2gray(batch_train)
-                batch_train = np.expand_dims(batch_train, axis=-1)
+                batch_label = train_label[batch_idx:batch_idx + args.batch_size]
+
+                batch_train = batch_bgr2rgb(batch_train)
+                batch_label = batch_bgr2gray(batch_label)
+                # for i in range(batch_train.shape[0]):
+                #     cv2.imshow('__DEBUG__', batch_train[i])
+                #     cv2.imshow('__DEBUG__01', batch_label[i])
+                #     cv2.waitKey(0)
+
+
+                # batch_train = np.expand_dims(batch_train, axis=-1)
                 batch_train = np.multiply(batch_train, 1.0 / 255.0)
 
-                batch_label = train_label[batch_idx:batch_idx + args.batch_size]
-                batch_label = batch_bgr2gray(batch_label)
                 batch_label = np.expand_dims(batch_label, axis=-1)
                 batch_label = np.multiply(batch_label, 1.0 / 255.0)
                 # print('__DEBUG__', batch_label.shape)
@@ -112,15 +123,15 @@ def main():
 
                 cont = str(np.max(y_arr)/100) + ": " + str(total_loss / n_iteration_per_epoch)
 
-                t.set_description("%s" % cont)
+                t.set_description("%s" % loss)
 
                 # _, err = sess.run([optimizer, y_loss],\
                          # feed_dict={x:batch_train,y_true:batch_label})
 
 
                 iteration += 1
-                if iteration%100 == 0:
-                    saver.save(sess, os.path.join(log_path, 'weights'), global_step=iteration, write_meta_graph=True)
+                # if iteration%1000 == 0:
+
 
 
 

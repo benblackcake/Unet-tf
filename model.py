@@ -68,62 +68,101 @@ class Unet(object):
         # with tf.variable_scope('forward') as scope:
 
         # train is used for un_conv, to determine the batch size
+        conv1 = tf.layers.conv2d(inputs=x_train, filters=16, kernel_size=3, strides=1,
+                         padding="same", activation=tf.nn.relu,
+                         kernel_initializer=tf.initializers.glorot_uniform())
+        conv1 = tf.layers.dropout(inputs=conv1, rate=0.1)
+        conv1 = tf.layers.conv2d(inputs=conv1, filters=16, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        p1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=2, strides=2, padding="valid")
 
-        conv1 = self._conv_layer(x_train, 1, 3, 64)
-        conv2 = self._conv_layer(conv1, 64, 3, 64)
-        pool2 = self._pool_layer(conv2)
-        conv3 = self._conv_layer(pool2, 64, 3, 128)
-        conv4 = self._conv_layer(conv3, 128, 3, 128)
-        pool4 = self._pool_layer(conv4)
-        conv5 = self._conv_layer(pool4, 128, 3, 256)
-        conv6 = self._conv_layer(conv5, 256, 3, 256)
-        pool6 = self._pool_layer(conv6)
-        conv7 = self._conv_layer(pool6, 256, 3, 512)
-        conv8 = self._conv_layer(conv7, 512, 3, 512)
-        pool8 = self._pool_layer(conv8)
+        conv2 = tf.layers.conv2d(inputs=p1, filters=32, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        conv2 = tf.layers.dropout(inputs=conv2, rate=0.1)
+        conv2 = tf.layers.conv2d(inputs=conv2, filters=32, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        p2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=2, strides=2, padding="valid")
 
-        conv9 = self._conv_layer(pool8, 512, 3, 1024)
-        conv10 = self._conv_layer(conv9, 1024, 3, 1024)
+        conv3 = tf.layers.conv2d(inputs=p2, filters=64, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        conv3 = tf.layers.dropout(inputs=conv3, rate=0.1)
+        conv3 = tf.layers.conv2d(inputs=conv3, filters=64, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        p3 = tf.layers.max_pooling2d(inputs=conv3, pool_size=2, strides=2, padding="valid")
 
-        # conv11 = self._un_conv(conv10, 1024, 2, 512, self.img_size // 8, train)
+        conv4 = tf.layers.conv2d(inputs=p3, filters=128, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        conv4 = tf.layers.dropout(inputs=conv4, rate=0.1)
+        conv4 = tf.layers.conv2d(inputs=conv4, filters=128, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        p4 = tf.layers.max_pooling2d(inputs=conv4, pool_size=2, strides=2, padding="valid")
 
-        conv11 = tf.layers.conv2d_transpose(inputs=conv10, filters=512, kernel_size=2, strides=2,
-                                 padding="same", kernel_initializer=tf.initializers.glorot_uniform())
+        conv5 = tf.layers.conv2d(inputs=p4, filters=256, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        conv5 = tf.layers.dropout(inputs=conv5, rate=0.2)
+        conv5 = tf.layers.conv2d(inputs=conv5, filters=256, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
 
-        merge11 = tf.concat(values=[conv8, conv11], axis = -1)
+        up1 = tf.layers.conv2d_transpose(inputs=conv5, filters=128, kernel_size=2, strides=2,
+                                         padding="same", kernel_initializer=tf.initializers.glorot_uniform())
+        up1 = tf.concat([up1, conv4], axis=3)
+        conv6 = tf.layers.conv2d(inputs=up1, filters=128, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        conv6 = tf.layers.dropout(inputs=conv6, rate=0.2)
+        conv6 = tf.layers.conv2d(inputs=conv6, filters=128, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
 
-        conv12 = self._conv_layer(merge11, 1024, 3, 512)
-        conv13 = self._conv_layer(conv12, 512, 3, 512)
+        up2 = tf.layers.conv2d_transpose(inputs=conv6, filters=64, kernel_size=2, strides=2,
+                                         padding="same", kernel_initializer=tf.initializers.glorot_uniform())
+        up2 = tf.concat([up2, conv3], axis=3)
+        conv7 = tf.layers.conv2d(inputs=up2, filters=64, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        conv7 = tf.layers.dropout(inputs=conv7, rate=0.2)
+        conv7 = tf.layers.conv2d(inputs=conv7, filters=64, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
 
-        # conv14 = self._un_conv(conv13, 512, 2, 256, self.img_size // 4, train)
-        conv14 = tf.layers.conv2d_transpose(inputs=conv13, filters=256, kernel_size=2, strides=2,
-                                 padding="same", kernel_initializer=tf.initializers.glorot_uniform())
-        merge14 = tf.concat([conv6, conv14], axis=-1)
+        up3 = tf.layers.conv2d_transpose(inputs=conv7, filters=32, kernel_size=2, strides=2,
+                                         padding="same", kernel_initializer=tf.initializers.glorot_uniform())
+        up3 = tf.concat([up3, conv2], axis=3)
+        conv8 = tf.layers.conv2d(inputs=up3, filters=32, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        conv8 = tf.layers.dropout(inputs=conv8, rate=0.2)
+        conv8 = tf.layers.conv2d(inputs=conv8, filters=32, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
 
-        conv15 = self._conv_layer(merge14, 512, 3, 256)
-        conv16 = self._conv_layer(conv15, 256, 3, 256)
+        up4 = tf.layers.conv2d_transpose(inputs=conv8, filters=16, kernel_size=2, strides=2,
+                                         padding="same", kernel_initializer=tf.initializers.glorot_uniform())
+        up4 = tf.concat([up4, conv1], axis=3)
+        conv9 = tf.layers.conv2d(inputs=up4, filters=16, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
+        conv9 = tf.layers.dropout(inputs=conv9, rate=0.1)
+        conv9 = tf.layers.conv2d(inputs=conv9, filters=16, kernel_size=3, strides=1,
+                                 padding="same", activation=tf.nn.relu,
+                                 kernel_initializer=tf.initializers.glorot_uniform())
 
-        # conv17 = self._un_conv(conv16, 256, 2, 128, self.img_size // 2, train)
-        conv17 = tf.layers.conv2d_transpose(inputs=conv16, filters=128, kernel_size=2, strides=2,
-                                 padding="same", kernel_initializer=tf.initializers.glorot_uniform())
-        merge17 = tf.concat([conv17, conv4], axis=-1)
-
-        conv18 = self._conv_layer(merge17, 256, 3, 128)
-        conv19 = self._conv_layer(conv18, 128, 3, 128)
-
-        # conv20 = self._un_conv(conv19, 128, 2, 64, self.img_size, train)
-        conv20 = tf.layers.conv2d_transpose(inputs=conv19, filters=64, kernel_size=2, strides=2,
-                                 padding="same", kernel_initializer=tf.initializers.glorot_uniform())
-        merge20 = tf.concat([conv20, conv2], axis=-1)
-
-        conv21 = self._conv_layer(merge20, 128, 3, 64)
-        conv22 = self._conv_layer(conv21, 64, 3, 64)
-        conv23 = self._conv_layer(conv22, 64, 1, self.classes)
-
+        conv10 = tf.layers.conv2d(inputs=conv9, filters=1, kernel_size=1, strides=1,
+                                  kernel_initializer=tf.initializers.glorot_uniform())
+        logits = tf.nn.sigmoid(conv10)
 
         # logits = tf.nn.sigmoid(conv23)
 
-        return conv23
+        return logits
 
     def loss_function(self, y_true, y_pred):
 
