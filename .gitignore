@@ -5,6 +5,7 @@
 /results/*
 /.idea/*
 /ILSVRC2012_img_train/*
+/Documents/*
 *.ckpt
 
 

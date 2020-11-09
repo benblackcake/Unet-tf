@@ -5,7 +5,7 @@ import cv2
 import datetime
 import os
 import shutil
-
+import scipy
 
 def build_log_dir(args, arguments):
     """Set up a timestamped directory for results and logs for this training session"""
@@ -70,6 +70,17 @@ def modcrop(img, scale =2):
         w = w - np.mod(w, scale)
         img = img[0:h, 0:w]
     return img
+
+
+def preprocess_img(batch_img, img_h=96, img_w=96):
+
+    imgs_p = np.ndarray([batch_img.shape[0], img_h, img_w], dtype=np.uint8)
+
+    for i in range(batch_img.shape[0]):
+        imgs_p[i] = scipy.misc.imresize(batch_img[i], (img_h, img_w), interp='bicubic')
+
+    return imgs_p
+
 
 
 
